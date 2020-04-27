@@ -28,5 +28,10 @@ class SongsWarpController < WarpCable::Controller
 
     end
 
+    def delete(params)
+    
+        Song.destroy(params[:id])
+
+    end 
 
 end
