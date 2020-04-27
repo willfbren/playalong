@@ -5,7 +5,7 @@
         <script src="./index.js"></script>
         <script>
             api.subscribe('Users', 'index', {}, function(users){
-                document.body.innerHTML = '' // <-- Try removing this and see what happens (but also try to guess first)
+                // document.body.innerHTML = '' // <-- Try removing this and see what happens (but also try to guess first)
                 users.forEach( user => {
                     let li = document.createElement('li')
                     li.innerText = user.name
