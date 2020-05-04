@@ -1,0 +1,27 @@
+<html>
+    <body>
+        <script src="./warp-cable-client.js"></script>
+        <script>
+            const api = WarpCable('ws://localhost:3000/cable')
+            api.subscribe('Users', 'index', {}, function(users){
+                document.body.innerHTML = '' // <-- Try removing this and see what happens (but also try to guess first)
+                users.forEach( user => {
+                    let li = document.createElement('li')
+                    li.innerText = user.name
+                    document.body.append(li)
+                })
+                let input = document.createElement('input')
+                let button = document.createElement('button')
+                button.innerText = 'Create'
+                document.body.append(input)
+                document.body.append(button)
+                button.addEventListener('click', function(){
+                    // Trigger and subscribe are basically the same thing, they both run controller
+                    // methods on the backend.
+                    api.trigger('Users', 'create', { name: input.value }) 
+                })
+            })
+
+        </script>
+    </body>
+</html>
