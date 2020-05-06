@@ -70,6 +70,7 @@ searchForm.addEventListener("submit", function (e) {
         });
       });
     });
+
     function selectedTrack(uri) {
       fetch(
         `https://api.spotify.com/v1/me/player/queue?uri=${uri}&device_id=ab5854b8d6d635ec4266f2f1e23aaf188df9dec6`,
