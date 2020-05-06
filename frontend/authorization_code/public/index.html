@@ -1,28 +1,41 @@
 <html>
-    <body>
-        <script src="./warp-cable-client.js"></script>
-        <script src="./api.js"></script>
-        <script src="./index.js"></script>
-        <script>
-            api.subscribe('Users', 'index', {}, function(users){
-                document.body.innerHTML = '' // <-- Try removing this and see what happens (but also try to guess first)
-                users.forEach( user => {
-                    let li = document.createElement('li')
-                    li.innerText = user.name
-                    document.body.append(li)
-                })
-                let input = document.createElement('input')
-                let button = document.createElement('button')
-                button.innerText = 'Create'
-                document.body.append(input)
-                document.body.append(button)
-                button.addEventListener('click', function(){
-                    // Trigger and subscribe are basically the same thing, they both run controller
-                    // methods on the backend.
-                    api.trigger('Users', 'create', { name: input.value }) 
-                })
-            })
+  <body>
+    <script src="./warp-cable-client.js"></script>
+    <script src="./api.js"></script>
+    <script src="./index.js"></script>
+    <script>
+      api.subscribe("Users", "index", {}, function (users) {
+        // document.body.innerHTML = '' // <-- Try removing this and see what happens (but also try to guess first)
+        users.forEach((user) => {
+          let li = document.createElement("li");
+          li.innerText = user.name;
+          document.body.append(li);
+        });
 
-        </script>
-    </body>
+        let input = document.createElement("input");
+        let button = document.createElement("button");
+        button.innerText = "Create";
+        document.body.append(input);
+        document.body.append(button);
+        button.addEventListener("click", function () {
+          // Trigger and subscribe are basically the same thing, they both run controller
+          // methods on the backend.
+          api.trigger("Users", "create", { name: input.value });
+        });
+      });
+    </script>
+
+    <div class="topcorner">
+      <p>Songs</p>
+      <ul id="song-queue"></ul>
+    </div>
+
+    <style type="text/css">
+      .topcorner {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    </style>
+  </body>
 </html>
