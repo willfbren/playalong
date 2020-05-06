@@ -19,39 +19,24 @@ let spotify_api = new SpotifyWebApi
 spotify_api.setAccessToken(params.access_token)
 
 
-async function currentUser() {
-    let currentUser = await spotify_api.getMe()
+const currentUser = async() => {
+    
     // setting await spotify_api.getMe() to variable
-    console.log(currentUser.display_name)
-    console.log(currentUser.email)
-    console.log(currentUser.id)
+    let currentUser = await spotify_api.getMe()
 
-    api.trigger('Users', 'set_user', {
+    let userInfo = {
         name: currentUser.display_name,
         email: currentUser.email,
         spotify_id: currentUser.id
-    }, function(user){
-        console.log(user)
-    } )
+    }
 
-    // fetch('http://localhost:3000/set-user', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'Accept': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //         name: currentUser.display_name,
-    //         email: currentUser.email,
-    //         spotify_id: currentUser.id
-    //     })
-    // })
-    // .then(function (response){
-    //     return response.json()
-    // })
-    // .then(function(user){
-    //     console.log(user)
-    // })
+    // call to api to set current user
+    api.trigger( 'Users', 'set_user', userInfo, function(currentUser){
+        let loggedIn = document.createElement('p')
+        loggedIn.innerText = `Logged in as: ${currentUser.name}`
+        document.body.append(loggedIn)
+    })
+
 }
 
 currentUser()
