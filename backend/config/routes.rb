@@ -3,4 +3,7 @@ Rails.application.routes.draw do
 
   warp_resources(:users)
 
+  post('/playlists/addToQueue', to: 'playlists#addToQueue')
+  
+
 end
