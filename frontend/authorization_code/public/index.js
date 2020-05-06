@@ -56,13 +56,21 @@ searchForm.addEventListener("submit", function (e) {
         songOption.addEventListener("click", function (e) {
           console.log(songOption, uri);
           selectedTrack(uri);
+          let newsongOption = document.createElement("li");
+          newsongOption.innerText = `${title} - ${artistName}`;
           let songQueue = document.getElementById("song-queue");
-          songQueue.appendChild(songOption);
-
+          songQueue.appendChild(newsongOption);
+          btnDelete = document.createElement("button");
+          btnDelete.append("Delete");
+          newsongOption.append(btnDelete);
+          btnDelete.addEventListener("click", function (e) {
+            newsongOption.remove();
+          });
           displayResult.remove();
         });
       });
     });
+
     function selectedTrack(uri) {
       fetch(
         `https://api.spotify.com/v1/me/player/queue?uri=${uri}&device_id=ab5854b8d6d635ec4266f2f1e23aaf188df9dec6`,
