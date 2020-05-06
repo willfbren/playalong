@@ -6,6 +6,9 @@
  * For more information, read
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
+module.exports = {
+  HOST: 'http://localhost:3000'
+};
 
 var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
@@ -46,7 +49,7 @@ app.get('/login', function(req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email';
+  var scope = 'streaming user-read-private user-read-email user-modify-playback-state user-read-playback-state';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
