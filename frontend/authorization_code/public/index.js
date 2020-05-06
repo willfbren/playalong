@@ -56,9 +56,16 @@ searchForm.addEventListener("submit", function (e) {
         songOption.addEventListener("click", function (e) {
           console.log(songOption, uri);
           selectedTrack(uri);
+          let newsongOption = document.createElement("li");
+          newsongOption.innerText = `${title} - ${artistName}`;
           let songQueue = document.getElementById("song-queue");
-          songQueue.appendChild(songOption);
-
+          songQueue.appendChild(newsongOption);
+          btnDelete = document.createElement("button");
+          btnDelete.append("Delete");
+          newsongOption.append(btnDelete);
+          btnDelete.addEventListener("click", function (e) {
+            newsongOption.remove();
+          });
           displayResult.remove();
         });
       });
