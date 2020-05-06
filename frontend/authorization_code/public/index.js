@@ -17,3 +17,30 @@ if (params.access_token == undefined) {
 }
 let spotify_api = new SpotifyWebApi
 spotify_api.setAccessToken(params.access_token)
+
+
+const currentUser = async() => {
+    
+    // setting await spotify_api.getMe() to variable
+    let currentUser = await spotify_api.getMe()
+
+    let userInfo = {
+        name: currentUser.display_name,
+        email: currentUser.email,
+        spotify_id: currentUser.id
+    }
+
+    // call to api to set current user
+    api.trigger( 'Users', 'set_user', userInfo, function(currentUser){
+        let loggedIn = document.createElement('p')
+        loggedIn.innerText = `Logged in as: ${currentUser.name}`
+        document.body.append(loggedIn)
+    })
+
+}
+
+currentUser()
+
+// create an input for the search
+// take value from the input 
+// make call to function
