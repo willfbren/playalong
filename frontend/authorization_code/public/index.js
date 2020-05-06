@@ -20,6 +20,7 @@ let spotify_api = new SpotifyWebApi
 spotify_api.setAccessToken(params.access_token)
 
 
+
     let test = document.createElement('h1')
     test.innerText = "PlayAlong Playlist"
     document.body.append(test)
@@ -81,4 +82,31 @@ function addToQueue(songUri){
         //what do we do here?
     }) 
 }
+
+
+const currentUser = async() => {
+    
+    // setting await spotify_api.getMe() to variable
+    let currentUser = await spotify_api.getMe()
+
+    let userInfo = {
+        name: currentUser.display_name,
+        email: currentUser.email,
+        spotify_id: currentUser.id
+    }
+
+    // call to api to set current user
+    api.trigger( 'Users', 'set_user', userInfo, function(currentUser){
+        let loggedIn = document.createElement('p')
+        loggedIn.innerText = `Logged in as: ${currentUser.name}`
+        document.body.append(loggedIn)
+    })
+
+}
+
+currentUser()
+
+// create an input for the search
+// take value from the input 
+// make call to function
 

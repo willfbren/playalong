@@ -19,4 +19,18 @@ class UsersWarpController < WarpCable::Controller
         })
     end
 
+    def set_user(params)
+        if (User.find_by(email: params[:email]) == nil)
+            current_user = User.create({
+                name: params[:name],
+                email: params[:email],
+                spotify_id: params[:spotify_id]
+            })
+        else
+            current_user = User.find_by(email: params[:email])
+        end
+
+        yield({ json: current_user })
+    end
+
 end
