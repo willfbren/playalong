@@ -56,16 +56,66 @@ searchForm.addEventListener("submit", function (e) {
         songOption.addEventListener("click", function (e) {
           console.log(songOption, uri);
           selectedTrack(uri);
-          let newsongOption = document.createElement("li");
-          newsongOption.innerText = `${title} - ${artistName}`;
+          let newSongOption = document.createElement("li");
+          newSongOption.likes = 0;
+          newSongOption.likes.id = "likes-song";
+          newSongOption.disLikes = 0;
+          newSongOption.disLikes.id = "dislikes-song";
+          newSongOption.innerText = `${title} - ${artistName} `;
           let songQueue = document.getElementById("song-queue");
-          songQueue.appendChild(newsongOption);
+          songQueue.appendChild(newSongOption);
           btnDelete = document.createElement("button");
           btnDelete.append("Delete");
-          newsongOption.append(btnDelete);
+          newSongOption.append(btnDelete);
           btnDelete.addEventListener("click", function (e) {
-            newsongOption.remove();
+            newSongOption.remove();
           });
+
+          let voteButton = document.createElement("button");
+          voteButton.append("This the shit");
+          let displayVoteLike = document.createElement("p");
+          newSongOption.append(displayVoteLike);
+          newSongOption.append(voteButton);
+          let disLikeButton = document.createElement("button");
+          disLikeButton.append("This sucks");
+          let displayVoteNoLike = document.createElement("p");
+          newSongOption.append(displayVoteNoLike);
+          newSongOption.append(disLikeButton);
+
+          voteButton.addEventListener("click", function (e) {
+            newSongOption.likes += 1;
+            displayVoteLike.innerText = `Likes: ${newSongOption.likes} `;
+            // create a song controller data base likes controller update likes
+
+            fetch("http://localhost:8888/votes/addvote", {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: JSON.stringify({
+                likes: newSongOption.likes,
+              }),
+            });
+          });
+
+          disLikeButton.addEventListener("click", function (e) {
+            newSongOption.disLikes += 1;
+            displayNoVoteLike.innerText = `Dislikes: ${newSongOption.disLikes} `;
+            // create a song controller data base likes controller update likes
+
+            fetch("http://localhost:8888/votes/addvote", {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: JSON.stringify({
+                likes: newSongOption.likes,
+              }),
+            });
+          });
+
           displayResult.remove();
         });
       });
@@ -110,25 +160,25 @@ function addToQueue(songUri) {
     });
 }
 
-// const currentUser = async () => {
-//   // setting await spotify_api.getMe() to variable
-//   let currentUser = await spotify_api.getMe();
+const currentUser = async () => {
+  // setting await spotify_api.getMe() to variable
+  let currentUser = await spotify_api.getMe();
 
-//   let userInfo = {
-//     name: currentUser.display_name,
-//     email: currentUser.email,
-//     spotify_id: currentUser.id,
-//   };
+  let userInfo = {
+    name: currentUser.display_name,
+    email: currentUser.email,
+    spotify_id: currentUser.id,
+  };
 
-//   // call to api to set current user
-//   api.trigger("Users", "set_user", userInfo, function (currentUser) {
-//     let loggedIn = document.createElement("p");
-//     loggedIn.innerText = `Logged in as: ${currentUser.name}`;
-//     document.body.append(loggedIn);
-//   });
-// };
+  // call to api to set current user
+  api.trigger("Users", "set_user", userInfo, function (currentUser) {
+    let loggedIn = document.createElement("p");
+    loggedIn.innerText = `Logged in as: ${currentUser.name}`;
+    document.body.append(loggedIn);
+  });
+};
 
-// currentUser();
+currentUser();
 
 // create an input for the search
 // take value from the input
