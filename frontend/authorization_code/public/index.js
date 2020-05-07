@@ -20,6 +20,31 @@ if (params.access_token == undefined) {
 let spotify_api = new SpotifyWebApi();
 spotify_api.setAccessToken(params.access_token);
 
+
+function findDevices() {
+    let button = document.createElement('button')
+    button.append('Find Devices')
+    document.body.append(button)
+    button.addEventListener('click', function(){
+        fetch('https://api.spotify.com/v1/me/player/devices', {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${params.access_token}`
+            }
+        })
+        .then(function(response) {
+            return response.json()
+        })
+        .then(function(resp) { 
+            console.log(resp)
+        })
+    })
+}
+
+findDevices()
+
 let test = document.createElement("h1");
 test.innerText = "PlayAlong Playlist";
 document.body.append(test);
@@ -35,9 +60,7 @@ button.innerText = "Search";
 document.body.append(searchForm);
 searchForm.appendChild(button);
 
-searchForm.addEventListener("submit", function (e) {
-  e.preventDefault();
-  async function searchSpotify() {
+async function searchSpotify() {
     let query = input.value;
     // let types = ["album", "artist", "playlist", "track"];
     const results = await spotify_api.searchTracks(query);
@@ -46,50 +69,52 @@ searchForm.addEventListener("submit", function (e) {
     let displayResult = document.createElement("ul");
     document.body.append(displayResult);
     results.tracks.items.forEach((tracks) => {
-      let uri = tracks.uri;
-      let title = tracks.name;
-      tracks.artists.forEach((artist) => {
-        let artistName = artist.name;
-        let songOption = document.createElement("li");
-        songOption.innerText = `${title} - ${artistName}`;
-        displayResult.appendChild(songOption);
-        songOption.addEventListener("click", function (e) {
-          console.log(songOption, uri);
-          selectedTrack(uri);
-          let newsongOption = document.createElement("li");
-          newsongOption.innerText = `${title} - ${artistName}`;
-          let songQueue = document.getElementById("song-queue");
-          songQueue.appendChild(newsongOption);
-          btnDelete = document.createElement("button");
-          btnDelete.append("Delete");
-          newsongOption.append(btnDelete);
-          btnDelete.addEventListener("click", function (e) {
-            newsongOption.remove();
-          });
-          displayResult.remove();
+        let uri = tracks.uri;
+        let title = tracks.name;
+        
+        tracks.artists.forEach((artist) => {
+            let artistName = artist.name;
+            let songOption = document.createElement("li");
+            songOption.innerText = `${title} - ${artistName}`;
+            displayResult.appendChild(songOption);
+            songOption.addEventListener("click", function (e) {
+                console.log(songOption, uri);
+                selectedTrack(uri);
+                let newsongOption = document.createElement("li");
+                newsongOption.innerText = `${title} - ${artistName}`;
+                let songQueue = document.getElementById("song-queue");
+                songQueue.appendChild(newsongOption);
+                btnDelete = document.createElement("button");
+                btnDelete.append("Delete");
+                newsongOption.append(btnDelete);
+                btnDelete.addEventListener("click", function (e) {
+                    newsongOption.remove();
+                });
+                
+                displayResult.remove();
+            });
         });
-      });
     });
+}
 
-    function selectedTrack(uri) {
-      fetch(
-        `https://api.spotify.com/v1/me/player/queue?uri=${uri}&device_id=ab5854b8d6d635ec4266f2f1e23aaf188df9dec6`,
-        {
-          method: "POST",
-          headers: {
+searchForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    searchSpotify();
+});
+
+function selectedTrack(uri) {
+    fetch(`https://api.spotify.com/v1/me/player/queue?uri=${uri}`, {
+        method: "POST",
+        headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
             Authorization: `Bearer  ${params.access_token}`,
-          },
-          body: JSON.stringify({
+        },
+        body: JSON.stringify({
             uri: uri,
-          }),
-        }
-      );
-    }
-  }
-  searchSpotify();
-});
+        }),
+    });
+}
 
 function addToQueue(songUri) {
   fetch(`http://localhost:3000/playlists/addToQueue`, {
