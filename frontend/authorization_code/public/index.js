@@ -1,4 +1,8 @@
+
+let currentUser = "";
+
 let device = ''
+
 
 const API_DOMAIN = "http://localhost:3000/cable";
 
@@ -21,6 +25,7 @@ if (params.access_token == undefined) {
 }
 let spotify_api = new SpotifyWebApi();
 spotify_api.setAccessToken(params.access_token);
+
 
 window.history.pushState({ path: '/' }, 'home', '/')
 
@@ -59,48 +64,74 @@ document.body.append(searchForm);
 searchForm.appendChild(button);
 
 async function searchSpotify() {
-    let query = input.value;
-    // let types = ["album", "artist", "playlist", "track"];
-    const results = await spotify_api.searchTracks(query);
+  let query = input.value;
+  // let types = ["album", "artist", "playlist", "track"];
+  const results = await spotify_api.searchTracks(query);
 
-    // const searchItems = results.tracks.items;
-    let displayResult = document.createElement("ul");
-    document.body.append(displayResult);
-    results.tracks.items.forEach((tracks) => {
-        let uri = tracks.uri;
-        let title = tracks.name;
-        
-        tracks.artists.forEach((artist) => {
-            let artistName = artist.name;
-            let songOption = document.createElement("li");
-            songOption.innerText = `${title} - ${artistName}`;
-            displayResult.appendChild(songOption);
-            songOption.addEventListener("click", function (e) {
-                console.log(songOption, uri);
-                selectedTrack(uri);
-                let newsongOption = document.createElement("li");
-                newsongOption.innerText = `${title} - ${artistName}`;
-                let songQueue = document.getElementById("song-queue");
-                songQueue.appendChild(newsongOption);
-                btnDelete = document.createElement("button");
-                btnDelete.append("Delete");
-                newsongOption.append(btnDelete);
-                btnDelete.addEventListener("click", function (e) {
-                    newsongOption.remove();
-                });
-                
-                displayResult.remove();
-            });
+  // const searchItems = results.tracks.items;
+  let displayResult = document.createElement("ul");
+  document.body.append(displayResult);
+  results.tracks.items.forEach((tracks) => {
+    let uri = tracks.uri;
+    let title = tracks.name;
+
+    tracks.artists.forEach((artist) => {
+      let artistName = artist.name;
+      let songOption = document.createElement("li");
+      songOption.innerText = `${title} - ${artistName}`;
+      displayResult.appendChild(songOption);
+      songOption.addEventListener("click", function (e) {
+        console.log(songOption, uri);
+        selectedTrack(uri);
+        let newSongOption = document.createElement("li");
+        newSongOption.likes = 0;
+        newSongOption.likes.id = "likes-song";
+        newSongOption.innerText = `${title} - ${artistName}`;
+        let songQueue = document.getElementById("song-queue");
+        songQueue.appendChild(newSongOption);
+        btnDelete = document.createElement("button");
+        btnDelete.append("Delete");
+        newSongOption.append(btnDelete);
+        btnDelete.addEventListener("click", function (e) {
+          newSongOption.remove();
         });
+
+        let voteButton = document.createElement("button");
+        voteButton.append("This the shit");
+        let displayVoteLike = document.createElement("p");
+        newSongOption.append(displayVoteLike);
+        newSongOption.append(voteButton);
+
+        voteButton.addEventListener("click", function (e) {
+          // if currentUser
+          newSongOption.likes += 1;
+          displayVoteLike.innerText = `Likes: ${newSongOption.likes} `;
+          // create a song controller data base likes controller update likes
+          fetch("http://localhost:8888/votes/addvote", {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              likes: newSongOption.likes,
+            }),
+          });
+        });
+
+        displayResult.remove();
+      });
     });
+  });
 }
 
 searchForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    searchSpotify();
+  e.preventDefault();
+  searchSpotify();
 });
 
 function selectedTrack(uri) {
+
     console.log(device)
     fetch(`https://api.spotify.com/v1/me/player/queue?uri=${uri}&device_id=${device}`, {
         method: "POST",
@@ -113,6 +144,7 @@ function selectedTrack(uri) {
             uri: uri,
         }),
     });
+
 }
 
 function addToQueue(songUri) {
@@ -134,25 +166,25 @@ function addToQueue(songUri) {
     });
 }
 
-// const currentUser = async () => {
-//   // setting await spotify_api.getMe() to variable
-//   let currentUser = await spotify_api.getMe();
+const currentUser = async () => {
+  // setting await spotify_api.getMe() to variable
+  currentUser = await spotify_api.getMe();
 
-//   let userInfo = {
-//     name: currentUser.display_name,
-//     email: currentUser.email,
-//     spotify_id: currentUser.id,
-//   };
+  let userInfo = {
+    name: currentUser.display_name,
+    email: currentUser.email,
+    spotify_id: currentUser.id,
+  };
 
-//   // call to api to set current user
-//   api.trigger("Users", "set_user", userInfo, function (currentUser) {
-//     let loggedIn = document.createElement("p");
-//     loggedIn.innerText = `Logged in as: ${currentUser.name}`;
-//     document.body.append(loggedIn);
-//   });
-// };
+  // call to api to set current user
+  api.trigger("Users", "set_user", userInfo, function (currentUser) {
+    let loggedIn = document.createElement("p");
+    loggedIn.innerText = `Logged in as: ${currentUser.name}`;
+    document.body.append(loggedIn);
+  });
+};
 
-// currentUser();
+currentUser();
 
 // create an input for the search
 // take value from the input
