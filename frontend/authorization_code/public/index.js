@@ -1,3 +1,22 @@
+// document.addEventListener("DOMContentLoaded", function(){
+  // fetch('https://api.spotify.com/v1/me/player/devices', {
+  //           method: 'GET',
+  //           headers: {
+  //               "Content-Type": "application/json",
+  //               "Accept": "application/json",
+  //               "Authorization": `Bearer ${params.access_token}`
+  //           }
+  //       })
+  //       .then(function(response) {
+  //           return response.json()
+  //       })
+  //       .then(function(resp) { 
+  //           const device = resp.devices[0].id
+  //           console.log(device)
+  //       })
+// })
+let device = ''
+
 const API_DOMAIN = "http://localhost:3000/cable";
 
 let api = WarpCable(API_DOMAIN);
@@ -20,30 +39,21 @@ if (params.access_token == undefined) {
 let spotify_api = new SpotifyWebApi();
 spotify_api.setAccessToken(params.access_token);
 
-
-function findDevices() {
-    let button = document.createElement('button')
-    button.append('Find Devices')
-    document.body.append(button)
-    button.addEventListener('click', function(){
-        fetch('https://api.spotify.com/v1/me/player/devices', {
-            method: 'GET',
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": `Bearer ${params.access_token}`
-            }
-        })
-        .then(function(response) {
-            return response.json()
-        })
-        .then(function(resp) { 
-            console.log(resp)
-        })
-    })
-}
-
-findDevices()
+fetch('https://api.spotify.com/v1/me/player/devices', {
+  method: 'GET',
+  headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": `Bearer ${params.access_token}`
+  }
+})
+.then(function(response) {
+  return response.json()
+})
+.then(function(resp) { 
+  device = resp.devices[0].id
+  console.log(device)
+})
 
 let test = document.createElement("h1");
 test.innerText = "PlayAlong Playlist";
@@ -103,7 +113,8 @@ searchForm.addEventListener("submit", function (e) {
 });
 
 function selectedTrack(uri) {
-    fetch(`https://api.spotify.com/v1/me/player/queue?uri=${uri}`, {
+    console.log(device)
+    fetch(`https://api.spotify.com/v1/me/player/queue?uri=${uri}&device_id=${device}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
