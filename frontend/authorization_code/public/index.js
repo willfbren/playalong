@@ -78,8 +78,10 @@ async function searchSpotify() {
       let songOption = document.createElement("li");
       songOption.innerText = `${title} - ${artistName}`;
       displayResult.appendChild(songOption);
-      songOption.addEventListener("click", function (e) {
+      songOption.addEventListener("click", function () {
         console.log(songOption, uri, track);
+        let ulSong = document.getElementById("song-queue");
+        ulSong.innerHTML = "";
         selectedTrack(uri, track);
         displayResult.remove();
       });
@@ -105,7 +107,6 @@ function selectedTrack(uri, track) {
 function liveQueue() {
   api.subscribe("Songs", "index", {}, function (songs) {
     console.log(songs);
-    ul.innerText = "";
     songs.forEach((song) => {
       let newSongOption = document.createElement("li");
       newSongOption.likes = 0;
@@ -131,7 +132,7 @@ function liveQueue() {
         newSongOption.likes += 1;
         displayVoteLike.innerText = `Likes: ${newSongOption.likes} `;
         // create a song controller data base likes controller update likes
-        fetch("http://localhost:8888/votes/addvote", {
+        fetch("http://localhost:8888/", {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -165,6 +166,7 @@ let ul = document.createElement("ul");
 document.body.append(ul);
 
 function addToQueue(songUri) {
+  ul.innerHTML = "";
   fetch(`http://localhost:3000/playlists/addToQueue`, {
     method: "POST",
     headers: {
