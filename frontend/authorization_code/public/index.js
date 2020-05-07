@@ -1,8 +1,6 @@
-
 let currentUser = "";
 
-let device = ''
-
+let device = "";
 
 const API_DOMAIN = "http://localhost:3000/cable";
 
@@ -26,27 +24,26 @@ if (params.access_token == undefined) {
 let spotify_api = new SpotifyWebApi();
 spotify_api.setAccessToken(params.access_token);
 
+window.history.pushState({ path: "/" }, "home", "/");
 
-window.history.pushState({ path: '/' }, 'home', '/')
-
-fetch('https://api.spotify.com/v1/me/player/devices', {
-    method: 'GET',
-    headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": `Bearer ${params.access_token}`
-    }
+fetch("https://api.spotify.com/v1/me/player/devices", {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${params.access_token}`,
+  },
 })
-.then(function(response) {
-    return response.json()
-})
-.then(function(resp) {
+  .then(function (response) {
+    return response.json();
+  })
+  .then(function (resp) {
     if (resp.error) {
-        window.location.replace('/login')
-    } 
-    device = resp.devices[0].id
-    console.log(device)
-})
+      window.location.replace("/login");
+    }
+    device = resp.devices[0].id;
+    console.log(device);
+  });
 
 let test = document.createElement("h1");
 test.innerText = "PlayAlong Playlist";
@@ -71,81 +68,101 @@ async function searchSpotify() {
   // const searchItems = results.tracks.items;
   let displayResult = document.createElement("ul");
   document.body.append(displayResult);
-  results.tracks.items.forEach((tracks) => {
-    let uri = tracks.uri;
-    let title = tracks.name;
+  results.tracks.items.forEach((track) => {
+    let uri = track.uri;
+    let title = track.name;
 
-    tracks.artists.forEach((artist) => {
+    track.artists.forEach((artist) => {
+      // console.log(artist);
       let artistName = artist.name;
       let songOption = document.createElement("li");
       songOption.innerText = `${title} - ${artistName}`;
       displayResult.appendChild(songOption);
       songOption.addEventListener("click", function (e) {
-        console.log(songOption, uri);
-        selectedTrack(uri);
-        let newSongOption = document.createElement("li");
-        newSongOption.likes = 0;
-        newSongOption.likes.id = "likes-song";
-        newSongOption.innerText = `${title} - ${artistName}`;
-        let songQueue = document.getElementById("song-queue");
-        songQueue.appendChild(newSongOption);
-        btnDelete = document.createElement("button");
-        btnDelete.append("Delete");
-        newSongOption.append(btnDelete);
-        btnDelete.addEventListener("click", function (e) {
-          newSongOption.remove();
-        });
-
-        let voteButton = document.createElement("button");
-        voteButton.append("This the shit");
-        let displayVoteLike = document.createElement("p");
-        newSongOption.append(displayVoteLike);
-        newSongOption.append(voteButton);
-
-        voteButton.addEventListener("click", function (e) {
-          // if currentUser
-          newSongOption.likes += 1;
-          displayVoteLike.innerText = `Likes: ${newSongOption.likes} `;
-          // create a song controller data base likes controller update likes
-          fetch("http://localhost:8888/votes/addvote", {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              likes: newSongOption.likes,
-            }),
-          });
-        });
-
+        console.log(songOption, uri, track);
+        selectedTrack(uri, track);
         displayResult.remove();
       });
     });
   });
 }
-
+liveQueue();
 searchForm.addEventListener("submit", function (e) {
   e.preventDefault();
   searchSpotify();
 });
 
-function selectedTrack(uri) {
+function selectedTrack(uri, track) {
+  api.trigger("Songs", "create", {
+    title: track.name,
+    artist: track.artists[0].name,
+    uri: uri,
+  });
 
-    console.log(device)
-    fetch(`https://api.spotify.com/v1/me/player/queue?uri=${uri}&device_id=${device}`, {
-        method: "POST",
-        headers: {
+  console.log(device);
+}
+
+function liveQueue() {
+  api.subscribe("Songs", "index", {}, function (songs) {
+    console.log(songs);
+    ul.innerText = "";
+    songs.forEach((song) => {
+      let newSongOption = document.createElement("li");
+      newSongOption.likes = 0;
+      newSongOption.likes.id = "likes-song";
+      newSongOption.innerText = `${song.title} - ${song.artist}`;
+      let songQueue = document.getElementById("song-queue");
+      songQueue.appendChild(newSongOption);
+      btnDelete = document.createElement("button");
+      btnDelete.append("Delete");
+      newSongOption.append(btnDelete);
+      btnDelete.addEventListener("click", function (e) {
+        newSongOption.remove();
+      });
+
+      let voteButton = document.createElement("button");
+      voteButton.append("This the shit");
+      let displayVoteLike = document.createElement("p");
+      newSongOption.append(displayVoteLike);
+      newSongOption.append(voteButton);
+
+      voteButton.addEventListener("click", function (e) {
+        // if currentUser
+        newSongOption.likes += 1;
+        displayVoteLike.innerText = `Likes: ${newSongOption.likes} `;
+        // create a song controller data base likes controller update likes
+        fetch("http://localhost:8888/votes/addvote", {
+          method: "PATCH",
+          headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer  ${params.access_token}`,
+          },
+          body: JSON.stringify({
+            likes: newSongOption.likes,
+          }),
+        });
+      });
+    });
+    let latestSong = songs.pop();
+    fetch(
+      `https://api.spotify.com/v1/me/player/queue?uri=${latestSong.uri}&device_id=${device}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer  ${params.access_token}`,
         },
         body: JSON.stringify({
-            uri: uri,
+          uri: latestSong.uri,
         }),
-    });
-
+      }
+    );
+  });
 }
+
+let ul = document.createElement("ul");
+document.body.append(ul);
 
 function addToQueue(songUri) {
   fetch(`http://localhost:3000/playlists/addToQueue`, {
@@ -166,7 +183,7 @@ function addToQueue(songUri) {
     });
 }
 
-const currentUser = async () => {
+const getCurrentUser = async () => {
   // setting await spotify_api.getMe() to variable
   currentUser = await spotify_api.getMe();
 
@@ -184,7 +201,7 @@ const currentUser = async () => {
   });
 };
 
-currentUser();
+getCurrentUser();
 
 // create an input for the search
 // take value from the input
