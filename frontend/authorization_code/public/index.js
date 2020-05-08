@@ -43,15 +43,21 @@
   col2.setAttribute('id', 'col2')
   col3.setAttribute('id', 'col3')
 
+
+
   row.append(col1, col2, col3)
+
 
   container = document.querySelector('.container-fluid')
   col1 = document.querySelector('#col1')
   col2 = document.querySelector('#col2')
   col3 = document.querySelector('#col3')
 
+
   let userHeading = document.createElement('h2')
   userHeading.append('Current Listeners')
+
+
 
   let searchHeading = document.createElement('h2')
   searchHeading.append('Search Songs')
@@ -209,9 +215,8 @@
           songOption.setAttribute('class', 'list-group-item')
         })
         songOption.addEventListener("click", function () {
-          console.log(songOption, uri, track);
-          let ulSong = document.getElementById("song-queue");
-          ulSong.innerHTML = "";
+          // let ulSong = document.getElementById("song-queue");
+          // ulSong.innerHTML = "";
           selectedTrack(uri, track);
           displayResult.innerText = '';
           searchForm.reset()
@@ -236,14 +241,13 @@
       artist: track.artists[0].name,
       uri: uri,
     });
-  
-    console.log(device);
+    liveQueue(uri, track)
   }
   
+
   function liveQueue() {
     let firstLoad = true
     api.subscribe("Songs", "index", {}, function (songs) {
-      console.log(songs);
       let songQueue = document.createElement('ul')
       songQueue.setAttribute('id', 'song-queue')
       songQueue.setAttribute('class', 'list-group')
@@ -260,22 +264,36 @@
         songArtist.innerText = `${song.artist}`
         col3.append(songQueue)
         songQueue.appendChild(newSongOption);
-
-  
+        //vote button
         let voteButton = document.createElement("button");
         voteButton.setAttribute('class', 'btn btn-success btn-sm')
         voteButton.style.marginRight = '10px'
         voteButton.append("Like");
         newSongOption.append(voteButton);
-
+        //delete button
         btnDelete = document.createElement('button')
         btnDelete.setAttribute('class', 'btn btn-secondary btn-sm')
         btnDelete.append('Remove')
         newSongOption.append(btnDelete);
+        //delete button functionality
         btnDelete.addEventListener("click", function (e) {
+          e.preventDefault()
+          console.log(songs)
+          fetch(`http://localhost:3000/delete/${song.id}`), {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${params.access_token}`
+            },
+            body: JSON.stringify({
+              id: song.id
+            })
+          }
           newSongOption.remove();
         });
 
+        
         let displayVoteLike = document.createElement("p");
         newSongOption.append(displayVoteLike);
         
@@ -344,7 +362,6 @@
  
   getCurrentUser();
   
-
 
   // create an input for the search
   // take value from the input
