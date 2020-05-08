@@ -21,7 +21,6 @@ class SongsWarpController < WarpCable::Controller
     def create(params)
         
         Song.create({
-            byebug
             title: params[:title],
             artist: params[:artist],
             uri: params[:uri]
