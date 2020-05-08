@@ -132,15 +132,11 @@ function liveQueue() {
         newSongOption.likes += 1;
         displayVoteLike.innerText = `Likes: ${newSongOption.likes} `;
         // create a song controller data base likes controller update likes
-        fetch("http://localhost:8888/", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            likes: newSongOption.likes,
-          }),
+        api.trigger("Songs", "update", {
+          title: track.name,
+          artist: track.artists[0].name,
+          uri: uri,
+          likes: newSongOption.likes++,
         });
       });
     });
@@ -164,26 +160,6 @@ function liveQueue() {
 
 let ul = document.createElement("ul");
 document.body.append(ul);
-
-function addToQueue(songUri) {
-  ul.innerHTML = "";
-  fetch(`http://localhost:3000/playlists/addToQueue`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      uri: songUri,
-    }),
-  })
-    .then(function (resp) {
-      return resp.json();
-    })
-    .then(function (song) {
-      //what do we do here?
-    });
-}
 
 const getCurrentUser = async () => {
   // setting await spotify_api.getMe() to variable
