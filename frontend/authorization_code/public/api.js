@@ -1,6 +1,10 @@
 /* global module */
 'use strict';
 
+const API_DOMAIN = "http://localhost:3000/cable";
+  
+let api = WarpCable(API_DOMAIN);
+
 /**
  * Class representing the API
  */
