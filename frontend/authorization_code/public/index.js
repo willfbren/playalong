@@ -54,6 +54,10 @@
   col3 = document.querySelector('#col3')
 
 
+  let userHeading = document.createElement('h2')
+  userHeading.append('Current Listeners')
+
+
 
   let searchHeading = document.createElement('h2')
   searchHeading.append('Search Songs')
@@ -61,6 +65,7 @@
   let queueHeading = document.createElement('h2')
   queueHeading.append('Queue')
 
+  col1.append(userHeading)
   col2.append(searchHeading)
   col3.append(queueHeading)
   
@@ -129,6 +134,46 @@
       console.log(device_id)
   }
   
+  let chatDiv = document.createElement('div')
+  let chatHeading = document.createElement('h2')
+  let chatList = document.createElement('ul')
+  chatHeading.append('Chat')
+  chatDiv.append(chatHeading, chatList)
+
+
+  api.subscribe("Users", "index", {}, function (users) {
+    users.forEach((user) => {
+      let li = document.createElement("li");
+      li.innerText = user.name;
+      col1.append(li);
+    });
+    let hr = document.createElement('hr')
+    col1.append(hr, chatDiv)
+  });
+
+  api.subscribe("Comments", "index", {}, function (comments) {
+    comments.forEach((comment) => {
+      let li = document.createElement("li");
+      li.innerText =`${comment.user.name}: ${comment.content}`;
+      chatList.append(li);
+    });
+  });
+
+  let chatInput = document.createElement('input')
+  chatInput.setAttribute('class', 'form-control')
+  let chatSubmit = document.createElement('button')
+  chatSubmit.style.marginTop = '10px'
+  chatSubmit.append('Send')
+  chatSubmit.setAttribute('class', 'form-control btn btn-primary')
+  chatDiv.append(chatInput, chatSubmit)
+
+  chatSubmit.addEventListener('click', function() {
+    api.trigger("Comments", "create", {
+      user_id: currentUser.id,
+      content: chatInput.value
+    });
+  })
+
   // search form
   let searchForm = document.createElement("form");
   let input = document.createElement("input");
@@ -138,6 +183,7 @@
   input.setAttribute("placeholder", "Search...");
   searchForm.append(input);
   let button = document.createElement("button");
+  button.style.marginTop = '10px'
   button.setAttribute("class", "form-control btn btn-primary");
   button.innerText = "Search";
   col2.append(searchForm);
@@ -198,7 +244,9 @@
     liveQueue(uri, track)
   }
   
-  function liveQueue(uri, track) {
+
+  function liveQueue() {
+    let firstLoad = true
     api.subscribe("Songs", "index", {}, function (songs) {
       let songQueue = document.createElement('ul')
       songQueue.setAttribute('id', 'song-queue')
@@ -267,21 +315,26 @@
           });
         });
       });
-      let latestSong = songs.pop();
-      fetch(
-        `https://api.spotify.com/v1/me/player/queue?uri=${latestSong.uri}&device_id=${device}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer  ${params.access_token}`,
-          },
-          body: JSON.stringify({
-            uri: latestSong.uri,
-          }),
-        }
-      );
+
+      if (firstLoad == true) {
+        firstLoad = false
+      } else {
+        let latestSong = songs.pop();
+        fetch(
+          `https://api.spotify.com/v1/me/player/queue?uri=${latestSong.uri}&device_id=${device}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer  ${params.access_token}`,
+            },
+            body: JSON.stringify({
+              uri: latestSong.uri,
+            }),
+          }
+        );
+      }
     });
   }
   
@@ -292,7 +345,7 @@
   const getCurrentUser = async () => {
     // setting await spotify_api.getMe() to variable
     currentUser = await spotify_api.getMe();
-  
+
     let userInfo = {
       name: currentUser.display_name,
       email: currentUser.email,
@@ -306,9 +359,8 @@
       container.append(loggedIn);
     });
   };
-  
+ 
   getCurrentUser();
-  
   
 
   // create an input for the search

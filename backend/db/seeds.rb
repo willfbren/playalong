@@ -19,8 +19,10 @@ User.create({ name: 'Josh' })
 User.create({ name: 'Rafa' })
 
 Song.create({
-    name: "Test Song",
-    user_id: User.first.id
+    title: "goosebumps",
+    user_id: User.first.id,
+    artist: "Travis Scott",
+    uri: 'spotify:track:6gBFPUFcJLzWGx4lenP6h2'
 })
 
 Vote.create({
