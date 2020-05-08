@@ -23,19 +23,7 @@ class SongsWarpController < WarpCable::Controller
         Song.create({
             title: params[:title],
             artist: params[:artist],
-            uri: params[:uri],
-            likes: 0
-        })
-
-    end
-
-    def update(params)
-        
-        Song.update({
-            title: params[:title],
-            artist: params[:artist],
-            uri: params[:uri],
-            likes: params[:likes]
+            uri: params[:uri]
         })
 
     end

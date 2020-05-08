@@ -43,17 +43,12 @@
   col2.setAttribute('id', 'col2')
   col3.setAttribute('id', 'col3')
 
-
-
   row.append(col1, col2, col3)
-
 
   container = document.querySelector('.container-fluid')
   col1 = document.querySelector('#col1')
   col2 = document.querySelector('#col2')
   col3 = document.querySelector('#col3')
-
-
 
   let searchHeading = document.createElement('h2')
   searchHeading.append('Search Songs')
@@ -234,7 +229,6 @@
         btnDelete.addEventListener("click", function (e) {
           newSongOption.remove();
         });
-
 
         let displayVoteLike = document.createElement("p");
         newSongOption.append(displayVoteLike);
