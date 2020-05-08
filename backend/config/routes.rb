@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   warp_resources(:users,:songs)
 
   post('/playlists/addToQueue', to: 'playlists#addToQueue')
-  
+  get('/index', to: 'songs#index')
+  get('/delete/:id', to: 'songs#delete')
 
 end
